@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
-import argparse
+import configargparse
 import sys
 import os
 import logging
+import logging.handlers
 
 FORMAT = "%(asctime)s [%(funcName)6s:%(lineno)3d]: %(message)s"
 LOG_LEVELS = (logging.ERROR, logging.WARNING, logging.INFO, logging.DEBUG)
@@ -15,15 +16,20 @@ def main(args):
 
 
 def get_args():
-    parser = argparse.ArgumentParser(description="RENAME")
-    parser.add_argument("-d", "--working-dir", default="RENAME",
-                        help="For logging, and other data")
-    parser.add_argument("-v", "--verbose", action="count", default=0)
-    parser.add_argument("-l", "--log-file", nargs="?", default=None,
-                        const=True, help="Where to log.  If not specified, "
-                        "log to 'WORKING_DIR/log', if specified without an "
-                        "option, log to stdout, if specified with option, log "
-                        "to 'LOG_FILE'")
+    parser = configargparse.ArgParser(
+        default_config_files = [
+            "~/.RENAMErc",
+        ],
+        description="RENAME"
+    )
+    parser.add("-d", "--working-dir", default="RENAME",
+               help="For logging, and other data")
+    parser.add("-v", "--verbose", action="count", default=0)
+    parser.add("-l", "--log-file", nargs="?", default=None,
+               const=True, help="Where to log.  If not specified, "
+               "log to 'WORKING_DIR/log', if specified without an "
+               "option, log to stdout, if specified with option, log "
+               "to 'LOG_FILE'")
     args = parser.parse_args()
 
     # It shouldn't matter the value of log_file is after this block
