@@ -10,6 +10,28 @@ FORMAT = "%(asctime)s [%(funcName)6s:%(lineno)3d]: %(message)s"
 LOG_LEVELS = (logging.ERROR, logging.WARNING, logging.INFO, logging.DEBUG)
 log = logging.getLogger("RENAME")
 
+# https://stackoverflow.com/a/38458877
+class MyStreamHandler(logging.StreamHandler):
+    def emit(self,record):
+        messages = record.msg.split('\n')
+        for message in messages:
+            record.msg = message
+            super().emit(record)
+
+class MyFileHandler(logging.FileHandler):
+    def emit(self,record):
+        messages = record.msg.split('\n')
+        for message in messages:
+            record.msg = message
+            super().emit(record)
+
+class MyRotatingFileHandler(logging.handlers.RotatingFileHandler):
+    def emit(self,record):
+        messages = record.msg.split('\n')
+        for message in messages:
+            record.msg = message
+            super().emit(record)
+
 
 def main(args):
     log.critical(args)
@@ -35,13 +57,13 @@ def get_args():
     # It shouldn't matter the value of log_file is after this block
     if args.log_file is None:
         args.log_file = os.path.join(args.working_dir, "log")
-        handler = logging.handlers.RotatingFileHandler(
+        handler = MyRotatingFileHandler(
             args.log_file, maxBytes=2000, backupCount=30)
     elif args.log_file and not isinstance(args.log_file, str):
         args.log_file = "stdout"
-        handler = logging.StreamHandler(stream=sys.stdout)
+        handler = MyStreamHandler(stream=sys.stdout)
     else:
-        handler = logging.FileHandler(filename=args.log_file)
+        handler = MyFileHandler(filename=args.log_file)
 
     handler.setFormatter(logging.Formatter(FORMAT))
     args.verbose = min([args.verbose, 3])
